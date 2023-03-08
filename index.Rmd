@@ -1,12 +1,12 @@
 ---
-title: "Frank Hermosillo"
-image: "frank.jpg"
+title: "Andrew Gillock"
+image: "images/profilepic.png"
 links:
   - label: LinkedIn
     url: "https://linkedin.com/"
   - label: Twitter
     url: "https://twitter.com/"
-  - label: GitHub
+  - label: '<i class="fab fa-github"></i> GitHub'
     url: "https://github.com/"
   - label: Email
     url: "mailto:email@email.com"
@@ -15,7 +15,7 @@ output:
 site: distill::distill_website
 ---
  
-## Bio
+## About Me
 
 Frank Hermosillo studies neural networks and their applications at Google 
 Brain. His research focuses on differentiable network pruning approximation and 
