@@ -1,12 +1,14 @@
 name: "."
-title: "Andrew Gillock"
+title: "Home"
 description: |
   My Personal Website
 output_dir: "docs"
 navbar:
   right:
-    - text: "Home"
-      href: index.html
-    - text: "About"
-      href: about.html
+    # - text: "Home"
+    #   href: index.html
+    - text: "Posts"
+      menu:
+        - text: 'MNIST Classification'
+          href: mnist.html
 output: distill::distill_article
