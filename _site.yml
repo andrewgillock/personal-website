@@ -1,14 +1,17 @@
 name: "."
-title: "Home"
+title: 'Home'
 description: |
   My Personal Website
 output_dir: "docs"
+theme: main-theme.css
 navbar:
   right:
-    # - text: "Home"
-    #   href: index.html
+    - text: "Resume"
+      href: 'materials/AndrewGillock2023Resume.pdf'
     - text: "Posts"
       menu:
         - text: 'MNIST Classification'
           href: mnist.html
+        - text: 'PCA Breakdown'
+          href: PCA-Breakdown.html
 output: distill::distill_article

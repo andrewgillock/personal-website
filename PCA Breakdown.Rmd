@@ -1,0 +1,286 @@
+---
+title: "Principle Component Analysis Breakdown"
+# description: |
+#   A new article created using the Distill format.
+# author:
+#   - name: Nora Jones 
+#     url: https://example.com/norajones
+#     affiliation: Spacely Sprockets
+#     affiliation_url: https://example.com/spacelysprokets
+# date: "`r Sys.Date()`"
+output: 
+  distill::distill_article:
+    toc: true
+    toc_depth: 2
+    toc_float: true
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE)
+```
+
+# Introduction
+
+Principle Component Analysis (PCA) is a dimensionality reduction method that is often utilized but rarely understood. This post will serve as an introductory lesson to PCA, focusing on the main ideas without getting lost in the math behind it all. I hope to use this for my own future reference (and whoever else may stumble across this website).
+
+```{r, echo = TRUE}
+library(readxl)
+library(plot3D)
+library(dplyr)
+library(palmerpenguins)
+library(ggplot2)
+```
+
+```{r, include = FALSE}
+data <- read_excel("datasets/PCA XYZ UVW ABC data and prin comps.xlsx")
+```
+
+I will begin by providing a visual example of what PCA aims to accomplish. Consider a dataset with only 3 predictor variables X, Y, and Z. In most cases our data will be composed of more variables, but examining only 3 permits us to view the geometric arrangement in 3-dimensions. Some example observations from the dataset can be seen below:
+
+```{r}
+head(data)[1:3]
+```
+
+```{r, echo = TRUE}
+attach(data)
+
+# view data holistically
+scatter3D(X, Y, Z, 
+          theta = 30, phi = 5, # adjust viewing angles
+          colvar = NULL, bty = 'g')
+```
+
+Upon first inspection, it's hard to piece together any structure in the data. Let's see how each of these variables differ in range and variance.
+
+```{r}
+cat('X Range:', round(range(X), 2)) 
+cat('\nX Variance:', round(var(data$X), 2))
+
+cat('\n\nY Range:', round(range(Y), 2))
+cat('\nY Variance:', round(var(data$Y), 2))
+
+cat('\n\nZ Range:', round(range(Z), 2))
+ cat('\nZ Variance:', round(var(data$Z), 2))
+```
+
+Interestingly, the Z variable has the smallest variance of all predictors. By adjusting the Z-axis we can get a better look at the data now.
+
+```{r, echo = TRUE}
+# show that z dimension is superfluous, this is what we are looking for in PCA
+scatter3D(X, Y, Z, 
+          theta = 30, phi = 5,
+          zlim = c(30, 55),
+          colvar = NULL, bty = 'g')
+```
+
+Now that we've changed our perspective, it's clear that Z is essentially a constant. Regardless of the X and Y values, Z remains close to about 40. If Z is a constant, then that means we are not gaining any information from it relative to our other predictors. This suggests that running an analysis with or without variable Z will yield the same results/maintain most of the information present in the data. 
+
+Consider a similar group of points U, V, and W. If these points maintain the same geometry as the data seen previously, then this superfluous dimension should still exist. Let's see how it looks when plotted.
+
+
+```{r, echo = TRUE}
+# transformed data, still has superfluous dimension, but it's not quite so clear this time
+head(data)[4:6]
+
+scatter3D(U, V, W, colvar = NULL, 
+          theta = 30, phi = 5,
+          bty ="g",
+          xlab = 'u', ylab = 'v', zlab = 'w')
+```
+
+There appears to be a general trend present in the data, but let's zoom out a bit to make sure.
+
+```{r, echo = TRUE}
+scatter3D(U, V, W, colvar = NULL, 
+          theta = 30, phi = 5, 
+          xlim = c(25, 90),
+          ylim = c(-25, 45),
+          zlim = c(-30, 10),
+          bty ="g",
+          xlab = 'u', ylab = 'v', zlab = 'w')
+```
+
+Similar to before, we can see that there is some dimension where the data is constant. This time however, we can not just exclude a variable to remove this constant.
+
+If the geometry of the original data is preserved, we can think of this new data as a simple rotation of the coordinate systems. This is where principle components come in! PCA amounts to a rotation (a.k.a. linear transformation) of our original data that maximizes the variance along each PC. This way, we can create new variables that capture more information than the original variables. 
+
+# Penguins Dataset Example
+
+Let's try and apply these concepts to the penguins dataset from the *palmerpenguins* library. It contains size measurements of different species of penguins in the Palmer Archipelago of Antarctica. Here's a preview of the data:
+
+```{r, echo = TRUE}
+head(penguins)
+```
+
+PCA only applies to numeric variables, so we can start by creating a subset of the original dataset that contains only the size measurements of each penguin.
+
+```{r, echo = TRUE}
+penguin_data <- penguins %>% 
+  select_if(is.numeric) %>% 
+  select(-year) %>% 
+  na.omit()
+```
+
+## Extracting Principle Components
+
+Now, we can extract the principle components and view a summary of the analysis. We must scale the data in the process to prevent one variable from outweighing the others.
+
+```{r, echo = TRUE}
+pca.penguins <- prcomp(penguin_data, scale = TRUE)
+pca.penguins
+```
+
+Taking a look at the rotation of the principle components tells us how we calculate our scores from the original data points. 
+
+$$
+PC1 = 0.455 (bill \space length) - 0.400 (bill \space depth) + 0.576 (flipper \space length) + 0.548 (body \space mass)
+$$
+$$
+PC2 = -0.597 (bill \space length) - 0.798 (bill \space depth) - 0.002 (flipper \space length) - 0.084 (body \space mass)
+$$
+$$
+PC3 = -0.644 (bill \space length) + 0.418 (bill \space depth) + 0.232 (flipper \space length) + 0.597 (body \space mass)
+$$
+$$
+PC4 = 0.146 (bill \space length) - 0.168 (bill \space depth) - 0.784 (flipper \space length) + 0.580 (body \space mass)
+$$
+
+Let's append our dataset with the principle components scores so we have them available for later.
+
+```{r, echo = TRUE}
+penguin_data <- cbind(penguin_data, pca.penguins$x)
+```
+
+Our PCA output also includes the standard deviation of each component:
+
+```{r, echo = TRUE}
+pca.penguins$sdev
+```
+
+We extracted PCs from 4 initial variables, all of which were standardized. This means that the variance of each of these should be equal to 1 and sum to a total variance of 4 (total variance = # of vars). 
+
+Since our principle components maintain (but redistribute) this variance, we should expect it to still sum to 4. Let's confirm this:
+
+```{r}
+cat('Variance of Each Component', pca.penguins$sdev^2)
+cat('\nSum of Variance:', sum(pca.penguins$sdev^2))
+```
+
+## Orthonormal Transformations
+
+How can we be sure that the geometry of the original data is maintained? If the equations of rotation result in the same distances and angles between points, then we can classify this rotation as an orthonormal transformation. We can verify that this PC transformation is orthonormal by ensuring that the unit basis vectors of the original data remain of unit length and maintain right angles with one another after being transformed.
+
+First, we must confirm that the unit basis vectors for each original variable remain the same length after our principle component transformation. The standardized original data have unit basis vectors as follows:
+
+* bill_length ~ (1, 0, 0, 0)
+
+* bill_depth ~ (0, 1, 0, 0)
+
+* flipper_length ~ (0, 0, 1, 0)
+
+* body_mass ~ (0, 0, 0, 1)
+
+We obtain our transformed unit vectors by taking the coefficients from our transformation:
+
+```{r, echo = TRUE}
+rotations <- pca.penguins$rotation
+
+bl_unit_trans <- rotations[1, ]
+bd_unit_trans <- rotations[2, ]
+fl_unit_trans <- rotations[3, ]
+bm_unit_trans <- rotations[4, ]
+```
+
+To confirm that the transformed unit vectors maintain 90º angles with one another, the cosine of the angle between each pair should be zero. This is equivalent to computing the inner product of each pair of coordinates. The '%*%' operator calculates the inner product of 2 vectors.
+
+```{r, echo = TRUE}
+bl_unit_trans %*% bd_unit_trans
+bl_unit_trans %*% fl_unit_trans
+bl_unit_trans %*% bm_unit_trans
+bd_unit_trans %*% fl_unit_trans
+bd_unit_trans %*% bm_unit_trans
+fl_unit_trans %*% bm_unit_trans
+```
+
+The inner products are essentially zero. Next, we ensure that the lengths of the new coordinate vectors maintain a length of 1. To check this, we define a function to compute the length of each new vector.
+
+```{r, echo = TRUE}
+vector_length_calc <- function(coordinates) {
+  length = sqrt(sum(coordinates^2))
+  return(length)
+}
+
+vector_length_calc(bl_unit_trans)
+vector_length_calc(bd_unit_trans)
+vector_length_calc(fl_unit_trans)
+vector_length_calc(bm_unit_trans)
+```
+
+The length of the transformed unit basis vectors are equivalent to 1 and they maintain 90º angles with one another. This proves that the PC transformation is a valid orthonormal transformation.
+
+## Choosing Number of PCs
+
+Now that we have confirmed the orthonormal PC transformation, let's consider how many principal components we should maintain in our analysis. We can start by constructing a Scree plot, which helps us visualize how much variation is explained by each component. Additionally, we can view the cumulative variance explained by each component.
+
+```{r, echo = TRUE}
+variance <- (pca.penguins$sdev)^2/(sum((pca.penguins$sdev)^2)) * 100
+pcs <- c(1, 2, 3, 4)
+total_var <- c(variance[1], 
+               sum(variance[1:2]), 
+               sum(variance[1:3]), 
+               sum(variance[1:4]))
+scree_data = data.frame(cbind(pcs, variance, total_var))
+
+ggplot(scree_data, aes(
+  x = pcs, 
+  y = variance,
+  label = round(variance, 2))) + 
+  xlab('# of Principle Components') +
+  ylab('% of Variance Explained') +
+  geom_line() + geom_point() + 
+  geom_text(nudge_y = 3, nudge_x = 0.2) +
+  theme_minimal()
+```
+
+```{r, echo = TRUE}
+ggplot(scree_data, aes(
+    x = pcs, 
+    y = total_var, 
+    label = round(total_var, 2))) + 
+  xlab('# of Principle Components') +
+  ylab('Total % of Variance Explained') +
+  geom_line() + geom_point() + 
+  geom_text(nudge_y = 3, nudge_x = -0.2) +
+  theme_minimal()
+```
+
+There are quite a few methods of determining an ideal number of PCs. I'll discuss a few of them here:
+
+  * Kaiser Rule: Choose all PCs with eigenvalues > 1
+  
+  * Joliffe Rule: Choose all PCs with eigenvalues > 0.7
+  
+  * 80% Rule: Choose PCs so that cumulative variance explained > 80%
+  
+  * Scree Plot Method: Choose PCs until plot levels out
+  
+  * Interpretation Method: Choose as many PCs as can be interpreted
+
+## Interpretation of PCs
+
+The final (and oftentimes the most difficult) step in our analysis is to interpret each principle component. This can be done in 2 ways. We might choose to examine our original rotation matrix from before and derive meanings from those values. Alternatively, we can view the correlation between the original data and the scores from each PC. Using the latter we are able to see which variables are most related to each PC, which I find to be more useful in interpretation. The matrix of correlations between scores and the original (scaled) data is known as the *loadings* matrix. Let's construct this matrix and attempt to explain each component.
+
+```{r, echo = TRUE}
+# obtain loadings matrix
+cor(scale(penguin_data[1:4]), penguin_data[5:8])
+```
+
+We can see that each of the 4 variables load high on PC1. This suggests that the first PC captures information regarding the overall size of each penguin. PC2 loads high on bill length and bill depth, meaning this component captures most of the variation in bills between different species of penguins. PC3 looks similar to PC1 in that it captures variation in the  overall measurements of each penguin, but none of the variables load very high on this component. Finally, PC4 has decent loadings on flipper length and body mass, but no correlation regarding bill length and depth. 
+
+# Conclusion
+
+This surface-level example provides some insight on the process of Principle Component Analysis. There is much more to be said in each of the sections I covered, which I will eventually add to the appendix. Overall, this post covered the extraction of principle components, validation of orthonormal transformations, how to choose the ideal number of PCs, and the interpretation of PCs. 
+
+# Appendix
+
+More to come here...

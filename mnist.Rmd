@@ -2,13 +2,17 @@
 title: "Classifying the MNIST Dataset"
 # description: |
 #   A new article created using the Distill format.
-author:
-  - name: Andrew Gillock
+# author:
+#   - name: Andrew Gillock
 #     url: https://example.com/norajones
 #     affiliation: Spacely Sprockets
 #     affiliation_url: https://example.com/spacelysprokets
 # date: "`r Sys.Date()`"
-output: distill::distill_article
+output: 
+  distill::distill_article:
+    toc: true
+    toc_depth: 2
+    toc_float: true
 ---
 
 ```{r setup, include = FALSE}
@@ -137,8 +141,7 @@ print('Incorrect:', len(incorrect))
 ```
 
 Out of the 10,000 images in the test set, the model correctly classifies 9,935 images and misclassifies 65 images. Despite achieving greater than 99% classification accuracy, I'm left questioning how to further improve this model. 
-
-Let's take a look at some of the images that are correctly/incorrectly classified to see the issues the model runs in to.
+Let's take a look at some of the images that are incorrectly classified to see the issues the model runs in to.
 
 ```{python, include = FALSE}
 def plotter(image):
