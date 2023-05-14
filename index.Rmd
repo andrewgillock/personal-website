@@ -16,8 +16,7 @@ site: distill::distill_website
 ## About Me
 
 
-I am currently a graduate student at UT Austin studying Business Analytics.
-I have a passion for finding 'aha' moments in data and breaking down the complexities into interpretable results. At the moment, I am searching for my first full-time role as a Data Scientist. Check out some of my posts to see what I've been working on lately!
+I recently graduated from UT Austin with a Master of Science in Business Analytics. I have a passion for finding 'aha' moments in data and breaking down the complexities into interpretable results. At the moment, I am searching for my first full-time role as a Data Scientist. Check out some of my posts to see what I've been working on lately!
 
 
 ## Education
@@ -30,7 +29,7 @@ B.S. in Biology | August 2018 - May 2022
 
 ## Experience
 
-**Dell Capstone Project** | Data Scientist | January 2023 - Present
+**Dell Technologies Capstone Project** | Data Scientist | January 2023 - May 2023
 
 **Innovative Eyecare** | Optometric Technician | May 2020 - February 2022
 
