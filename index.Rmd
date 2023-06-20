@@ -1,6 +1,6 @@
 ---
 title: 'Andrew Gillock'
-image: "images/profilepic.png"
+image: "images/profilepic2.png"
 links:
   - label: '<i class="fab fa-linkedin"></i> LinkedIn'
     url: "https://linkedin.com/in/andrewgillock"

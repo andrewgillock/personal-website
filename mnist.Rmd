@@ -76,7 +76,8 @@ Using this information, I will now develop my own CNN with the goal of achieving
 
 ```{python}
 NNmodel = tf.keras.models.Sequential()
-NNmodel.add(tf.keras.layers.Conv2D(filters = 20, kernel_size = (5,5), activation = tf.nn.relu, input_shape = xshape))
+NNmodel.add(tf.keras.layers.Conv2D(filters = 20, kernel_size = (5,5), activation = tf.nn.relu, 
+input_shape = xshape))
 NNmodel.add(tf.keras.layers.Conv2D(filters = 20, kernel_size = (2,2), activation = tf.nn.relu))
 NNmodel.add(tf.keras.layers.MaxPooling2D(pool_size = (2, 2), strides = 2))
 NNmodel.add(tf.keras.layers.Conv2D(filters = 50, kernel_size = (2,2), activation = tf.nn.relu))
@@ -85,7 +86,8 @@ NNmodel.add(tf.keras.layers.Flatten())
 NNmodel.add(tf.keras.layers.Dropout(rate = 0.4))
 NNmodel.add(tf.keras.layers.Dense(128,activation=tf.nn.relu))
 NNmodel.add(tf.keras.layers.Dropout(rate = 0.2))
-NNmodel.add(tf.keras.layers.Dense(64,activation=tf.nn.relu, kernel_regularizer = tf.keras.regularizers.l1(0.0005)))
+NNmodel.add(tf.keras.layers.Dense(64,activation=tf.nn.relu, 
+kernel_regularizer = tf.keras.regularizers.l1(0.0005)))
 NNmodel.add(tf.keras.layers.Dense(10,activation=tf.nn.softmax))
 ```
 
